@@ -1,0 +1,33 @@
+Category,Question,Proposed Points
+🛠️ Engineering Fundamentals,Can you explain the difference between retrieval, reranking, and RAG?,10
+🛠️ Engineering Fundamentals,When is fine-tuning necessary vs. when should you use prompt engineering?,10
+🛠️ Engineering Fundamentals,Can you describe a neural network in simple terms?,5
+🛠️ Engineering Fundamentals,How do you optimize LLM inference for cost and speed?,10
+🛠️ Engineering Fundamentals,What are the trade-offs of running LLMs locally vs. on the cloud?,5
+🛠️ Engineering Fundamentals,How would you handle rate limits (429 errors) in production?,10
+🛠️ Engineering Fundamentals,What metrics would you track to evaluate an AI model in production?,10
+🛠️ Engineering Fundamentals,Can you draw a high-level architecture for an AI system and explain its bottlenecks?,10
+📦 Software Engineering & MLOps,What's the most complex AI system you've deployed to production?,10
+📦 Software Engineering & MLOps,How do you structure logs for debugging AI workflows?,5
+📦 Software Engineering & MLOps,Can you explain vector databases? When would you use one?,5
+📦 Software Engineering & MLOps,Have you built an evaluation framework for AI models? What did you measure?,10
+📦 Software Engineering & MLOps,What's the most important aspect of data quality when training an AI model?,10
+📦 Software Engineering & MLOps,What are some failure modes of AI models, and how would you mitigate them?,10
+📦 Software Engineering & MLOps,How do you determine whether an AI system should be agent-based vs. stateless queries?,5
+🧠 Problem-Solving & Optimization,How do you debug an AI model giving inconsistent answers?,10
+🧠 Problem-Solving & Optimization,If an LLM response is hallucinating, what are 3 ways to fix it?,10
+🧠 Problem-Solving & Optimization,How would you handle memory limitations in long-context models?,5
+🧠 Problem-Solving & Optimization,When would you avoid using an AI solution altogether?,10
+🛠️ Tools & Best Practices,Have you built a production RAG system? (Bonus for real-world examples),5
+🛠️ Tools & Best Practices,Can you compare LangChain vs. LangGraph? When would you use one over the other?,3
+🛠️ Tools & Best Practices,What's the weakest part of Cursor? (If you don't know Cursor: -5),3
+🛠️ Tools & Best Practices,How do you structure structured outputs in LLMs?,5
+💰 Cost & Performance Considerations,How do you estimate token costs before deploying a model?,5
+💰 Cost & Performance Considerations,What's the best way to cache LLM responses efficiently?,10
+💰 Cost & Performance Considerations,How do you decide between a $50 API vs. an open-source model?,5
+🚀 Future Trends & Research Awareness,What is "reasoning trace," and why does it matter?,5
+🚀 Future Trends & Research Awareness,How would you evaluate Claude vs. GPT-4o vs. Gemini for a specific use case?,5
+🚀 Future Trends & Research Awareness,Have you worked with multi-modal models? What are their biggest challenges?,5
+👥 Teamwork & Practical Application,Have you done an AI hackathon or a self-initiated AI project outside of work?,5
+👥 Teamwork & Practical Application,What's a time you simplified an AI system instead of over-engineering it?,10
+👥 Teamwork & Practical Application,How would you mentor a junior AI engineer to quickly level up?,5
