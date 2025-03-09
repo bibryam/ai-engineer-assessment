@@ -5,23 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Engineer Self-Assessment</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/papaparse/5.3.2/papaparse.min.js"></script>
-    <!-- Ensure PapaParse is loaded before the main script -->
-    <script>
-        // Check if Papa is loaded
-        function checkPapaLoaded() {
-            if (typeof Papa !== 'undefined') {
-                // PapaParse is loaded, initialize the app
-                initApp();
-            } else {
-                // Wait and try again
-                setTimeout(checkPapaLoaded, 100);
-            }
-        }
-        
-        // Wait for DOM to be ready
-        document.addEventListener('DOMContentLoaded', checkPapaLoaded);
-    </script>
 </head>
 <body class="bg-gray-50 min-h-screen">
     <div class="container mx-auto px-4 py-8 max-w-4xl">
@@ -94,7 +77,26 @@
         </footer>
     </div>
 
+    <!-- Load PapaParse library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/papaparse/5.3.2/papaparse.min.js"></script>
+    
     <script>
+        // Wait for both DOM and PapaParse to load before initializing
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if Papa is loaded
+            if (typeof Papa !== 'undefined') {
+                initApp();
+            } else {
+                // If not loaded yet, wait for it
+                const checkInterval = setInterval(function() {
+                    if (typeof Papa !== 'undefined') {
+                        clearInterval(checkInterval);
+                        initApp();
+                    }
+                }, 100);
+            }
+        });
+
         function initApp() {
             // DOM elements
             const questionsContainer = document.getElementById('questions-container');
