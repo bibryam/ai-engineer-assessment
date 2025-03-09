@@ -6,461 +6,133 @@
     <title>AI Engineer Self-Assessment</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen">
     <div class="container mx-auto px-4 py-8 max-w-4xl">
-        <header class="mb-8 text-center">
-            <h1 class="text-3xl font-bold text-blue-700">AI Engineer Self-Assessment</h1>
-            <p class="text-gray-600 mt-2">Answer yes/no to assess your AI engineering skills</p>
+        <header class="mb-12 text-center">
+            <h1 class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-4">
+                AI Engineer Assessment
+            </h1>
+            <p class="text-gray-300 text-lg">Rate your AI engineering expertise</p>
         </header>
 
-        <div id="assessment-container" class="bg-white shadow-md rounded-lg p-6 mb-8">
-            <!-- Progress indicator -->
-            <div class="mb-6">
-                <div class="flex justify-between text-sm text-gray-600 mb-1">
-                    <span>Progress</span>
-                    <span id="progress-text">0/0 questions answered</span>
-                </div>
-                <div class="h-2 bg-gray-200 rounded-full">
-                    <div id="progress-bar" class="h-2 bg-blue-500 rounded-full transition-all duration-300" style="width: 0%"></div>
-                </div>
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-8 shadow-2xl">
+            <div id="progress" class="text-center mb-6">
+                <span class="text-2xl font-semibold text-blue-400">Question <span id="current-question">1</span>/<span id="total-questions">32</span></span>
             </div>
 
-            <!-- Questions will be rendered here -->
-            <div id="questions-container" class="space-y-8">
-                <div class="flex justify-center py-4">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700"></div>
-                    <span class="ml-2 text-gray-600">Loading questions...</span>
-                </div>
+            <!-- Fixed height container for questions -->
+            <div id="current-question-container" class="mb-8 min-h-[200px]">
+                <!-- Current question will be rendered here -->
             </div>
+
+            <!-- Fixed position buttons container -->
+            <div class="flex justify-center space-x-4 mb-8">
+                <button onclick="answerQuestion(true)" 
+                    class="bg-green-500 hover:bg-green-600 text-white w-32 py-3 rounded-lg transition-colors duration-200 transform hover:scale-105">
+                    Yes
+                </button>
+                <button onclick="answerQuestion(false)" 
+                    class="bg-red-500 hover:bg-red-600 text-white w-32 py-3 rounded-lg transition-colors duration-200 transform hover:scale-105">
+                    No
+                </button>
         </div>
 
-        <!-- Results section (initially hidden) -->
-        <div id="results-section" class="bg-white shadow-md rounded-lg p-6 mb-8 hidden">
-            <h2 class="text-2xl font-bold text-blue-700 mb-4">Your Assessment Results</h2>
-            
-            <div class="mb-8">
-                <div class="text-center">
-                    <span class="text-5xl font-bold text-blue-700" id="total-score">0</span>
-                    <span class="text-3xl text-gray-500">/<span id="max-score">0</span></span>
-                    <p class="text-gray-600 mt-1">Total Points</p>
+            <div class="text-center space-y-4">
+                <div class="text-3xl font-bold text-white mb-6">
+                    Score: <span id="current-score" class="text-blue-300">0</span>
                 </div>
                 
-                <div class="mt-4">
-                    <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
-                        <div id="score-bar" class="h-full bg-blue-600 transition-all duration-700" style="width: 0%"></div>
-                    </div>
-                    <div class="mt-1 text-right text-sm font-medium text-gray-600">
-                        <span id="score-percentage">0%</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div>
-                <h3 class="text-xl font-semibold text-gray-800 mb-3">Category Breakdown</h3>
-                <div id="category-breakdown" class="space-y-4"></div>
-            </div>
-            
-            <div class="mt-8 flex justify-center">
-                <button id="reset-assessment-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition">
+                <button onclick="resetQuiz()" class="text-sm text-gray-300 hover:text-white transition-colors duration-200 border border-gray-600 rounded-lg px-4 py-2 hover:border-gray-400">
                     Start Over
                 </button>
             </div>
         </div>
-
-        <footer class="mt-12 text-center text-gray-500 text-sm">
-            <p class="mb-2">© 2025 AI Engineer Assessment Tool</p>
-            <div class="flex justify-center space-x-4">
-                <a href="#" id="download-csv-link" class="text-blue-600 hover:underline">Download Question Template</a>
-                <a href="#" id="upload-csv-link" class="text-blue-600 hover:underline">Upload Custom Questions</a>
-                <input id="csv-file-input" type="file" accept=".csv" class="hidden">
-            </div>
-        </footer>
     </div>
-
-    <!-- Load PapaParse library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/papaparse/5.3.2/papaparse.min.js"></script>
     
     <script>
-        // Add error handling for PapaParse loading
-        function checkPapaParseLoaded() {
-            return new Promise((resolve, reject) => {
-                let attempts = 0;
-                const maxAttempts = 20; // 2 seconds maximum wait time
-                
-                const checkInterval = setInterval(() => {
-                    attempts++;
-                    if (typeof Papa !== 'undefined') {
-                        clearInterval(checkInterval);
-                        resolve(true);
-                    } else if (attempts >= maxAttempts) {
-                        clearInterval(checkInterval);
-                        reject(new Error('PapaParse failed to load'));
-                    }
-                }, 100);
-            });
-        }
+        const questions = [
+            { id: 1, text: "Can you explain the difference between retrieval, reranking, and RAG?", points: 10 },
+            { id: 2, text: "When is fine-tuning necessary vs. prompt engineering?", points: 10 },
+            { id: 3, text: "Can you describe a neural network in simple terms?", points: 5 },
+            { id: 4, text: "How do you optimize LLM inference for cost and speed?", points: 10 },
+            { id: 5, text: "What are the trade-offs of running LLMs locally vs. cloud?", points: 5 },
+            { id: 6, text: "How would you handle rate limits (429 errors) in production?", points: 10 },
+            { id: 7, text: "What metrics would you track to evaluate an AI model in production?", points: 10 },
+            { id: 8, text: "Can you draw a high-level architecture for an AI system and explain its bottlenecks?", points: 10 },
+            { id: 9, text: "What's the most complex AI system you've deployed to production?", points: 10 },
+            { id: 10, text: "How do you structure logs for debugging AI workflows?", points: 5 },
+            { id: 11, text: "Can you explain vector databases? When would you use one?", points: 5 },
+            { id: 12, text: "Have you built an evaluation framework for AI models? What did you measure?", points: 10 },
+            { id: 13, text: "What's the most important aspect of data quality when training an AI model?", points: 10 },
+            { id: 14, text: "What are some failure modes of AI models, and how would you mitigate them?", points: 10 },
+            { id: 15, text: "How do you determine whether an AI system should be agent-based vs. stateless queries?", points: 5 },
+            { id: 16, text: "How do you debug an AI model giving inconsistent answers?", points: 10 },
+            { id: 17, text: "If an LLM response is hallucinating, what are 3 ways to fix it?", points: 10 },
+            { id: 18, text: "How would you handle memory limitations in long-context models?", points: 5 },
+            { id: 19, text: "When would you avoid using an AI solution altogether?", points: 10 },
+            { id: 20, text: "Have you built a production RAG system? (Bonus for real-world examples)", points: 5 },
+            { id: 21, text: "Can you compare LangChain vs. LangGraph? When would you use one over the other?", points: 3 },
+            { id: 22, text: "What's the weakest part of Cursor? (If you don't know Cursor: -5)", points: 3 },
+            { id: 23, text: "How do you structure structured outputs in LLMs?", points: 5 },
+            { id: 24, text: "How do you estimate token costs before deploying a model?", points: 5 },
+            { id: 25, text: "What's the best way to cache LLM responses efficiently?", points: 10 },
+            { id: 26, text: "How do you decide between a $50 API vs. an open-source model?", points: 5 },
+            { id: 27, text: "What is 'reasoning trace,' and why does it matter?", points: 5 },
+            { id: 28, text: "How would you evaluate Claude vs. GPT-4 vs. Gemini for a specific use case?", points: 5 },
+            { id: 29, text: "Have you worked with multi-modal models? What are their biggest challenges?", points: 5 },
+            { id: 30, text: "Have you done an AI hackathon or a self-initiated AI project outside of work?", points: 5 },
+            { id: 31, text: "What's a time you simplified an AI system instead of over-engineering it?", points: 10 },
+            { id: 32, text: "How would you mentor a junior AI engineer to quickly level up?", points: 5 }
+        ];
 
-        // Modified initialization
-        document.addEventListener('DOMContentLoaded', async function() {
-            try {
-                await checkPapaParseLoaded();
-                initApp();
-            } catch (error) {
-                console.error('Failed to initialize:', error);
-                document.getElementById('questions-container').innerHTML = `
-                    <div class="text-center text-red-600 py-4">
-                        <p>Failed to load required dependencies. Please try refreshing the page.</p>
-                        <p class="text-sm mt-2">Error: ${error.message}</p>
-                    </div>
-                `;
-            }
-        });
+        let currentQuestionIndex = 0;
+        let totalScore = 0;
 
-        function initApp() {
-            // DOM elements
-            const questionsContainer = document.getElementById('questions-container');
-            const progressBar = document.getElementById('progress-bar');
-            const progressText = document.getElementById('progress-text');
-            const resultsSection = document.getElementById('results-section');
-            const totalScoreElement = document.getElementById('total-score');
-            const maxScoreElement = document.getElementById('max-score');
-            const scoreBarElement = document.getElementById('score-bar');
-            const scorePercentageElement = document.getElementById('score-percentage');
-            const categoryBreakdownElement = document.getElementById('category-breakdown');
-            const resetAssessmentBtn = document.getElementById('reset-assessment-btn');
-            const downloadCsvLink = document.getElementById('download-csv-link');
-            const uploadCsvLink = document.getElementById('upload-csv-link');
-            const csvFileInput = document.getElementById('csv-file-input');
-
-            // State
-            let questions = [];
-            let categories = [];
-            let answeredCount = 0;
-            let totalQuestions = 0;
-
-            // Default CSV content
-            const defaultCsvContent = `Category,Question,Proposed Points
-🛠️ Engineering Fundamentals,Can you explain the difference between retrieval, reranking, and RAG?,10
-🛠️ Engineering Fundamentals,When is fine-tuning necessary vs. when should you use prompt engineering?,10
-🛠️ Engineering Fundamentals,Can you describe a neural network in simple terms?,5
-🛠️ Engineering Fundamentals,How do you optimize LLM inference for cost and speed?,10
-🛠️ Engineering Fundamentals,What are the trade-offs of running LLMs locally vs. on the cloud?,5
-🛠️ Engineering Fundamentals,How would you handle rate limits (429 errors) in production?,10
-🛠️ Engineering Fundamentals,What metrics would you track to evaluate an AI model in production?,10
-🛠️ Engineering Fundamentals,Can you draw a high-level architecture for an AI system and explain its bottlenecks?,10
-📦 Software Engineering & MLOps,What's the most complex AI system you've deployed to production?,10
-📦 Software Engineering & MLOps,How do you structure logs for debugging AI workflows?,5
-📦 Software Engineering & MLOps,Can you explain vector databases? When would you use one?,5
-📦 Software Engineering & MLOps,Have you built an evaluation framework for AI models? What did you measure?,10
-📦 Software Engineering & MLOps,What's the most important aspect of data quality when training an AI model?,10
-📦 Software Engineering & MLOps,What are some failure modes of AI models, and how would you mitigate them?,10
-📦 Software Engineering & MLOps,How do you determine whether an AI system should be agent-based vs. stateless queries?,5
-🧠 Problem-Solving & Optimization,How do you debug an AI model giving inconsistent answers?,10
-🧠 Problem-Solving & Optimization,If an LLM response is hallucinating, what are 3 ways to fix it?,10
-🧠 Problem-Solving & Optimization,How would you handle memory limitations in long-context models?,5
-🧠 Problem-Solving & Optimization,When would you avoid using an AI solution altogether?,10
-🛠️ Tools & Best Practices,Have you built a production RAG system? (Bonus for real-world examples),5
-🛠️ Tools & Best Practices,Can you compare LangChain vs. LangGraph? When would you use one over the other?,3
-🛠️ Tools & Best Practices,What's the weakest part of Cursor? (If you don't know Cursor: -5),3
-🛠️ Tools & Best Practices,How do you structure structured outputs in LLMs?,5
-💰 Cost & Performance Considerations,How do you estimate token costs before deploying a model?,5
-💰 Cost & Performance Considerations,What's the best way to cache LLM responses efficiently?,10
-💰 Cost & Performance Considerations,How do you decide between a $50 API vs. an open-source model?,5
-🚀 Future Trends & Research Awareness,What is "reasoning trace," and why does it matter?,5
-🚀 Future Trends & Research Awareness,How would you evaluate Claude vs. GPT-4o vs. Gemini for a specific use case?,5
-🚀 Future Trends & Research Awareness,Have you worked with multi-modal models? What are their biggest challenges?,5
-👥 Teamwork & Practical Application,Have you done an AI hackathon or a self-initiated AI project outside of work?,5
-👥 Teamwork & Practical Application,What's a time you simplified an AI system instead of over-engineering it?,10
-👥 Teamwork & Practical Application,How would you mentor a junior AI engineer to quickly level up?,5`;
-
-            // Parse CSV to questions array
-            function parseCSV(csvContent) {
-                return new Promise((resolve) => {
-                    Papa.parse(csvContent, {
-                        header: true,
-                        skipEmptyLines: true,
-                        complete: function(results) {
-                            const parsedQuestions = results.data.map((item, index) => ({
-                                id: index + 1,
-                                category: item.Category,
-                                question: item.Question,
-                                points: parseInt(item['Proposed Points'], 10) || 0,
-                                answered: null // null = unanswered, true = yes, false = no
-                            }));
-                            resolve(parsedQuestions);
-                        }
-                    });
-                });
-            }
-
-            // Render all questions grouped by category
-            function renderQuestions() {
-                questionsContainer.innerHTML = '';
-
-                if (questions.length === 0) {
-                    questionsContainer.innerHTML = '<p class="text-center text-gray-600">No questions available.</p>';
-                    return;
-                }
-
-                // Group questions by category
-                const groupedQuestions = {};
-                questions.forEach(question => {
-                    if (!groupedQuestions[question.category]) {
-                        groupedQuestions[question.category] = [];
-                    }
-                    groupedQuestions[question.category].push(question);
-                });
-
-                // Render each category and its questions
-                Object.keys(groupedQuestions).forEach(category => {
-                    const categorySection = document.createElement('div');
-                    categorySection.className = 'mb-8';
-                    
-                    // Category header
-                    const categoryHeader = document.createElement('div');
-                    categoryHeader.className = 'mb-4';
-                    categoryHeader.innerHTML = `
-                        <h2 class="text-xl font-semibold text-blue-700">${category}</h2>
-                        <div class="h-0.5 bg-gray-200 mt-1"></div>
-                    `;
-                    categorySection.appendChild(categoryHeader);
-                    
-                    // Questions in this category
-                    const categoryQuestions = document.createElement('div');
-                    categoryQuestions.className = 'space-y-4';
-                    
-                    groupedQuestions[category].forEach(question => {
-                        const questionCard = document.createElement('div');
-                        questionCard.className = 'bg-gray-50 border border-gray-200 rounded-lg p-4 hover:shadow-sm transition';
-                        
-                        let yesButtonClass = 'bg-gray-200 text-gray-700';
-                        let noButtonClass = 'bg-gray-200 text-gray-700';
-                        
-                        if (question.answered === true) {
-                            yesButtonClass = 'bg-green-500 text-white';
-                        } else if (question.answered === false) {
-                            noButtonClass = 'bg-red-500 text-white';
-                        }
-                        
-                        questionCard.innerHTML = `
-                            <div class="flex flex-col sm:flex-row sm:items-center">
-                                <div class="flex-1 mb-3 sm:mb-0">
-                                    <p class="text-gray-800">${question.question}</p>
-                                    <p class="text-sm text-gray-500 mt-1">Points: ${question.points}</p>
-                                </div>
-                                <div class="flex space-x-2 sm:ml-4">
-                                    <button data-id="${question.id}" data-answer="yes" 
-                                        class="answer-btn ${yesButtonClass} px-4 py-1 rounded font-medium transition">
-                                        Yes
-                                    </button>
-                                    <button data-id="${question.id}" data-answer="no" 
-                                        class="answer-btn ${noButtonClass} px-4 py-1 rounded font-medium transition">
-                                        No
-                                    </button>
-                                </div>
+        function renderCurrentQuestion() {
+            const container = document.getElementById('current-question-container');
+            const question = questions[currentQuestionIndex];
+            
+            if (question) {
+                container.innerHTML = `
+                    <div class="bg-white/5 backdrop-blur rounded-lg p-6">
+                        <p class="text-xl text-white mb-4 text-center">${question.text}</p>
+                        <p class="text-sm text-blue-300 text-center">Points: ${question.points}</p>
                             </div>
                         `;
-                        
-                        categoryQuestions.appendChild(questionCard);
-                    });
-                    
-                    categorySection.appendChild(categoryQuestions);
-                    questionsContainer.appendChild(categorySection);
-                });
-
-                // Add event listeners to answer buttons
-                document.querySelectorAll('.answer-btn').forEach(button => {
-                    button.addEventListener('click', handleAnswerClick);
-                });
-
-                // Update progress indicators
-                updateProgress();
-            }
-
-            // Handle answer button clicks
-            function handleAnswerClick(e) {
-                const questionId = parseInt(e.target.getAttribute('data-id'), 10);
-                const answer = e.target.getAttribute('data-answer') === 'yes';
                 
-                const questionIndex = questions.findIndex(q => q.id === questionId);
-                if (questionIndex !== -1) {
-                    // If this answer is changing from unanswered to answered
-                    if (questions[questionIndex].answered === null) {
-                        answeredCount++;
-                    }
-                    // Update the answer
-                    questions[questionIndex].answered = answer;
-                    
-                    // Re-render questions (can be optimized to just update the clicked question)
-                    renderQuestions();
-                    
-                    // Check if all questions are answered
-                    if (answeredCount === totalQuestions) {
-                        showResults();
-                    }
-                }
-            }
-
-            // Update progress bar and text
-            function updateProgress() {
-                answeredCount = questions.filter(q => q.answered !== null).length;
-                totalQuestions = questions.length;
-                
-                const percentage = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;
-                progressBar.style.width = `${percentage}%`;
-                progressText.textContent = `${answeredCount}/${totalQuestions} questions answered`;
-            }
-
-            // Show results section
-            function showResults() {
-                // Calculate scores
-                let totalScore = 0;
-                let maxScore = 0;
-                
-                // Calculate scores by category
-                const categoryScores = {};
-                const categoryMaxScores = {};
-                
-                questions.forEach(question => {
-                    // Add to total max score
-                    maxScore += question.points;
-                    
-                    // Add to total score if answered yes
-                    if (question.answered === true) {
-                        totalScore += question.points;
-                    }
-                    
-                    // Initialize category scores if needed
-                    if (!categoryScores[question.category]) {
-                        categoryScores[question.category] = 0;
-                        categoryMaxScores[question.category] = 0;
-                    }
-                    
-                    // Add to category max score
-                    categoryMaxScores[question.category] += question.points;
-                    
-                    // Add to category score if answered yes
-                    if (question.answered === true) {
-                        categoryScores[question.category] += question.points;
-                    }
-                });
-                
-                // Update UI
-                totalScoreElement.textContent = totalScore;
-                maxScoreElement.textContent = maxScore;
-                
-                const percentage = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0;
-                scoreBarElement.style.width = `${percentage}%`;
-                scorePercentageElement.textContent = `${percentage}%`;
-                
-                // Update category breakdown
-                categoryBreakdownElement.innerHTML = '';
-                
-                // Sort categories by percentage score (highest first)
-                const sortedCategories = Object.keys(categoryScores).sort((a, b) => {
-                    const percentA = categoryMaxScores[a] > 0 ? (categoryScores[a] / categoryMaxScores[a]) : 0;
-                    const percentB = categoryMaxScores[b] > 0 ? (categoryScores[b] / categoryMaxScores[b]) : 0;
-                    return percentB - percentA;
-                });
-                
-                // Create category breakdown elements
-                sortedCategories.forEach(category => {
-                    const score = categoryScores[category];
-                    const maxScore = categoryMaxScores[category];
-                    const percentage = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
-                    
-                    const categoryElement = document.createElement('div');
-                    categoryElement.className = 'mb-3';
-                    categoryElement.innerHTML = `
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-sm font-medium text-gray-700">${category}</span>
-                            <span class="text-sm font-medium text-gray-700">${score}/${maxScore} (${percentage}%)</span>
-                        </div>
-                        <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div class="h-full ${percentage >= 70 ? 'bg-green-500' : percentage >= 40 ? 'bg-yellow-500' : 'bg-red-500'}" 
-                                 style="width: ${percentage}%"></div>
+                // Update progress
+                document.getElementById('current-question').textContent = currentQuestionIndex + 1;
+                document.getElementById('total-questions').textContent = questions.length;
+            } else {
+                // Quiz completed
+                container.innerHTML = `
+                    <div class="text-center text-white">
+                        <h2 class="text-3xl font-bold mb-4">Quiz Completed!</h2>
+                        <p class="text-xl">Final Score: ${totalScore}</p>
                         </div>
                     `;
-                    
-                    categoryBreakdownElement.appendChild(categoryElement);
-                });
-                
-                // Show results section and hide questions
-                document.getElementById('assessment-container').classList.add('hidden');
-                resultsSection.classList.remove('hidden');
             }
-
-            // Reset the assessment
-            function resetAssessment() {
-                questions.forEach(question => {
-                    question.answered = null;
-                });
-                answeredCount = 0;
-                
-                renderQuestions();
-                document.getElementById('assessment-container').classList.remove('hidden');
-                resultsSection.classList.add('hidden');
-                
-                // Scroll to top
-                window.scrollTo(0, 0);
-            }
-
-            // Load questions from CSV content
-            async function loadQuestions(csvContent) {
-                try {
-                    questions = await parseCSV(csvContent);
-                    totalQuestions = questions.length;
-                    answeredCount = 0;
-                    renderQuestions();
-                } catch (error) {
-                    console.error('Error loading questions:', error);
-                    questionsContainer.innerHTML = `
-                        <div class="bg-red-100 text-red-700 p-4 rounded">
-                            <p>Error loading questions. Please try again or use the default template.</p>
-                        </div>
-                    `;
-                }
-            }
-
-            // Download CSV template
-            function downloadCSVTemplate() {
-                const blob = new Blob([defaultCsvContent], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = 'ai_engineer_assessment_template.csv';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-
-            // Initialize event listeners
-            resetAssessmentBtn.addEventListener('click', resetAssessment);
             
-            downloadCsvLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                downloadCSVTemplate();
-            });
-            
-            uploadCsvLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                csvFileInput.click();
-            });
-            
-            csvFileInput.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        loadQuestions(e.target.result);
-                    };
-                    reader.readAsText(file);
-                }
-            });
-
-            // Initial load with default CSV
-            loadQuestions(defaultCsvContent);
+            // Update score
+            document.getElementById('current-score').textContent = totalScore;
         }
+
+        function answerQuestion(isYes) {
+            if (isYes) {
+                totalScore += questions[currentQuestionIndex].points;
+            }
+            currentQuestionIndex++;
+            renderCurrentQuestion();
+        }
+
+        function resetQuiz() {
+            currentQuestionIndex = 0;
+            totalScore = 0;
+            renderCurrentQuestion();
+        }
+
+        // Initialize the quiz
+        renderCurrentQuestion();
     </script>
 </body>
 </html>
